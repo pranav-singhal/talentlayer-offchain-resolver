@@ -17,14 +17,14 @@ export interface Database {
   addr(
     name: string,
     coinType: number
-  ): PromiseOrResult<{ addr: string; ttl: number }>;
+  ): PromiseOrResult<string>;
   text(
     name: string,
     key: string
-  ): PromiseOrResult<{ value: string; ttl: number }>;
+  ): PromiseOrResult<string>;
   contenthash(
     name: string
-  ): PromiseOrResult<{ contenthash: string; ttl: number }>;
+  ): PromiseOrResult<string>;
 }
 
 function decodeDnsName(dnsname: Buffer) {
@@ -47,20 +47,20 @@ const queryHandlers: {
   ) => Promise<DatabaseResult>;
 } = {
   'addr(bytes32)': async (db, name, _args) => {
-    const { addr, ttl } = await db.addr(name, ETH_COIN_TYPE);
-    return { result: [addr], ttl };
+    const addr = await db.addr(name, ETH_COIN_TYPE);
+    return { result: [addr], ttl: 600 };
   },
   'addr(bytes32,uint256)': async (db, name, args) => {
-    const { addr, ttl } = await db.addr(name, args[0]);
-    return { result: [addr], ttl };
+    const addr = await db.addr(name, args[0]);
+    return { result: [addr], ttl: 600 };
   },
   'text(bytes32,string)': async (db, name, args) => {
-    const { value, ttl } = await db.text(name, args[0]);
-    return { result: [value], ttl };
+    const addr = await db.text(name, args[0]);
+    return { result: [addr], ttl: 600 };
   },
   'contenthash(bytes32)': async (db, name, _args) => {
-    const { contenthash, ttl } = await db.contenthash(name);
-    return { result: [contenthash], ttl };
+    const contenthash = await db.contenthash(name);
+    return { result: [contenthash], ttl: 600 };
   },
 };
 
