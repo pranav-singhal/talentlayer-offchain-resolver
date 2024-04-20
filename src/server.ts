@@ -17,7 +17,7 @@ export interface Database {
   addr(
     name: string,
     coinType: number
-  ): PromiseOrResult<string>;
+  ): PromiseOrResult<{ addr: string; ttl: number }>;
   text(
     name: string,
     key: string
@@ -47,8 +47,8 @@ const queryHandlers: {
   ) => Promise<DatabaseResult>;
 } = {
   'addr(bytes32)': async (db, name, _args) => {
-    const addr = await db.addr(name, ETH_COIN_TYPE);
-    return { result: [addr], ttl: 600 };
+    const { addr, ttl } = await db.addr(name, ETH_COIN_TYPE);
+    return { result: [addr], ttl };
   },
   'addr(bytes32,uint256)': async (db, name, args) => {
     const addr = await db.addr(name, args[0]);

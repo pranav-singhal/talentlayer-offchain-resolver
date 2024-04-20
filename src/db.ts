@@ -29,18 +29,22 @@ export const database: Database = {
   async addr(name, coinType) {
     // If the request is for some non-ETH address, return 0x0
     if (coinType !== ETH_COIN_TYPE) {
-      return ZERO_ADDRESS;
+      return { addr: ZERO_ADDRESS, ttl: 1000 };
     }
 
     console.log("recieved query for: ", JSON.stringify({ name, coinType }));
 
+    const fetchingName = name.split(".")[0];
+
     // If the request if for an ETH address, get that from your API (or database directly or whatever)
     try {
-      const addr: string = await fetchOffchainName(name);
-      return addr || ZERO_ADDRESS;
+      const addr: string = await fetchOffchainName(fetchingName);
+      console.log(`addr: for ${name}: `, addr);
+      return { addr: addr || ZERO_ADDRESS, ttl: 1000 };
+      // return addr || ZERO_ADDRESS;
     } catch (error) {
       console.error('Error resolving addr', error);
-      return ZERO_ADDRESS;
+      return { addr: ZERO_ADDRESS, ttl: 1000 };
     }
   },
   async text(name: string, key: string) {
@@ -55,6 +59,8 @@ export const database: Database = {
 };
 
 export async function fetchOffchainName(name: string): Promise<string> {
+
+  console.log("fetchOffchainName: ", name);
   try {
     const options = {
       method: 'POST',
@@ -68,7 +74,7 @@ export async function fetchOffchainName(name: string): Promise<string> {
     const response = await fetch(GRAPHQL_ENDPOINT, options);
 
     const data = (await response.json()) as NameData;
-    console.log("response from api: ", JSON.stringify(data));
+    console.log(`response from api for name: ${name}`, JSON.stringify(data));
 
     return data?.data?.users[0]?.address || ZERO_ADDRESS;
   } catch (err) {
